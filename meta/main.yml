@@ -1,0 +1,30 @@
+galaxy_info:
+  role_name: system_lvm
+  author: turcumihaiioan
+  description: role for community.general.lvg and community.general.lvol
+
+  license: GPL-3.0-only
+
+  min_ansible_version: "2.10"
+
+  platforms:
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - lvg
+    - lvm
+    - lvol
+    - system
+
+dependencies: []
