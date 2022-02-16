@@ -1,0 +1,8 @@
+---
+- name: running system_lvm tasks
+  block:
+    - name: filler
+      meta:
+        end_play
+  when:
+    system_lvm is defined
