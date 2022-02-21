@@ -9,13 +9,15 @@
         pvs: "{{ item['value']['pvs'] }}"
         state: present
         vg: "{{ item['value']['vg'] }}"
-        vg_options:  "{{ item['value']['vg_options'] | default(omit) }}"
+        vg_options: "{{ item['value']['vg_options'] | default(omit) }}"
       loop: "{{ system_lvm | dict2items }}"
+      loop_control:
+        label: "{{ item['key'], item['value']['vg'] }}"
       when:
         - item['value']['pvs'] is defined
-        - item['value']['state'] is defined and 
+        - item['value']['state'] is defined and
           item['value']['state'] == "present" or
-          item['value']['state'] is undefined   
+          item['value']['state'] is undefined
         - item['value']['vg'] is defined
 
     - name: creating/resizing logical volume
@@ -33,31 +35,35 @@
         thinpool: "{{ item[1]['thinpool'] | default(omit) }}"
         vg: "{{ item[0]['vg'] }}"
       loop:
-        "{{ system_lvm | subelements('lv') }}"
-      loop_conttrol:
+        "{{ system_lvm | subelements('lv', 'skip_missing=true') }}"
+      loop_control:
         label: "{{ item[0]['vg'], item[1]['lv'] }}"
       when:
         - item[0]['vg'] is defined
+        - item[0]['state'] is defined and
+          item[0]['state'] == "present" or
+          item[0]['state'] is undefined
         - item[1]['size'] is defined
-        - item[1]['state'] is defined and 
+        - item[1]['state'] is defined and
           item[1]['state'] == "present" or
-          item[1]['state'] is undefined   
-        
+          item[1]['state'] is undefined
 
     - name: removing logical volume
       community.general.lvol:
-        force: "{{ item[1]['force'] | default(omit) }}"
+        force: "{{ item[1]['force'] }}"
         lv: "{{ item[1]['lv'] }}"
         state: absent
         vg: "{{ item[0]['vg'] }}"
       loop:
-        "{{ system_lvm | subelements('lv') }}"
-      loop_conttrol:
+        "{{ system_lvm | subelements('lv', 'skip_missing=true') }}"
+      loop_control:
         label: "{{ item[0]['vg'], item[1]['lv'] }}"
       when:
         - item[0]['vg'] is defined
         - item[1]['state'] is defined
         - item[1]['state'] == "absent"
+        - item[1]['force'] is defined
+        - item[1]['force'] is truthy
 
     - name: removing volume group
       community.general.lvg:
@@ -66,9 +72,11 @@
         vg: "{{ item['value']['vg'] }}"
       loop:
         "{{ system_lvm | dict2items }}"
+      loop_control:
+        label: "{{ item['key'], item['value']['vg'] }}"
       when:
         - item['value']['state'] is defined
-        - item['value']['state'] == absent
+        - item['value']['state'] == "absent"
         - item['value']['vg'] is defined
   when:
     system_lvm is defined
