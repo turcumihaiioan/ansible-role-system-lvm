@@ -11,7 +11,7 @@ ansible >= 2.10
 Role Variables
 --------------
 
-```
+```yml
 system_lvm:
   first_entry:
     force: ...
@@ -52,7 +52,7 @@ Example Playbook
 ----------------
 
 #### Create a volume group, create a logical volume:
-```
+```yml
 - hosts: servers
   vars:
     system_lvm:
@@ -67,7 +67,7 @@ Example Playbook
 ```
 
 #### Resize a volume group, resize a logical volume, resize a logical volume and it's filesystem:
-```
+```yml
 - hosts: servers
   vars:
     system_lvm:
@@ -86,7 +86,7 @@ Example Playbook
 ```
 
 #### Remove a volume group, remove a volume group with a logical volume, remove a logical volume:
-```
+```yml
 - hosts: servers
   vars:
     system_lvm:
@@ -95,13 +95,15 @@ Example Playbook
         vg: test3_vg
       vol4:
         lv:
-          - lv: test5_lv
+          - force: true
+            lv: test5_lv
             state: absent
         state: absent
         vg: test4_vg
       vol5:
         lv:
-          - lv: test5_lv
+          - force: true
+            lv: test5_lv
             state: absent
         vg: test4_vg
   roles:
