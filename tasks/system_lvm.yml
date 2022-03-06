@@ -1,0 +1,73 @@
+---
+- name: "{{ system_lvm_item['key'] }} : creating/resizing volume group"
+  community.general.lvg:
+    pesize: "{{ system_lvm_item['value']['pesize'] | default(omit) }}"
+    pv_options: "{{ system_lvm_item['value']['pv_options'] | default(omit) }}"
+    pvresize: "{{ system_lvm_item['value']['pvresize'] | default(omit) }}"
+    pvs: "{{ system_lvm_item['value']['pvs'] }}"
+    state: present
+    vg: "{{ system_lvm_item['value']['vg'] }}"
+    vg_options: "{{ system_lvm_item['value']['vg_options'] | default(omit) }}"
+  when:
+    - system_lvm_item['value']['pvs'] is defined
+    - system_lvm_item['value']['state'] is defined and
+      system_lvm_item['value']['state'] == "present" or
+      system_lvm_item['value']['state'] is undefined
+    - system_lvm_item['value']['vg'] is defined
+
+- name: "{{ system_lvm_item['key'] }} : creating/resizing logical volume }}"
+  community.general.lvol:
+    active: "{{ item['active'] | default(omit) }}"
+    force: "{{ item['force'] | default(omit) }}"
+    lv: "{{ item['lv'] | default(omit) }}"
+    opts: "{{ item['opts'] | default(omit) }}"
+    pvs: "{{ item['pvs'] | default(omit) }}"
+    resizefs: "{{ item['resizefs'] | default(omit) }}"
+    shrink: "{{ item['shrink'] | default(omit) }}"
+    size: "{{ item['size'] }}"
+    snapshot: "{{ item['snapshot'] | default(omit) }}"
+    state: present
+    thinpool: "{{ item['thinpool'] | default(omit) }}"
+    vg: "{{ system_lvm_item['value']['vg'] }}"
+  loop:
+    "{{ system_lvm_item['value']['lv'] }}"
+  loop_control:
+    label: "{{ item['lv'] }}"
+  when:
+    - system_lvm_item['value']['vg'] is defined
+    - system_lvm_item['value']['state'] is defined and
+      system_lvm_item['value']['state'] == "present" or
+      system_lvm_item['value']['state'] is undefined
+    - system_lvm_item['value']['lv'] is defined
+    - item['size'] is defined
+    - item['state'] is defined and
+      item['state'] == "present" or
+      item['state'] is undefined
+
+- name: "{{ system_lvm_item['key'] }} : removing logical volume"
+  community.general.lvol:
+    force: "{{ item['force'] }}"
+    lv: "{{ item['lv'] }}"
+    state: absent
+    vg: "{{ system_lvm_item['value']['vg'] }}"
+  loop:
+    "{{ system_lvm_item['value']['lv'] }}"
+  loop_control:
+    label: "{{ item['lv'] }}"
+  when:
+    - system_lvm_item['value']['vg'] is defined
+    - system_lvm_item['value']['lv'] is defined
+    - item['state'] is defined
+    - item['state'] == "absent"
+    - item['force'] is defined
+    - item['force'] is truthy
+
+- name: "{{ system_lvm_item['key'] }} : removing volume group"
+  community.general.lvg:
+    force: "{{ system_lvm_item['value']['force'] | default(omit) }}"
+    state: absent
+    vg: "{{ system_lvm_item['value']['vg'] }}"
+  when:
+    - system_lvm_item['value']['state'] is defined
+    - system_lvm_item['value']['state'] == "absent"
+    - system_lvm_item['value']['vg'] is defined
