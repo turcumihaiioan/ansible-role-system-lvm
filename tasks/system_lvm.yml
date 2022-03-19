@@ -15,7 +15,7 @@
       system_lvm_item['value']['state'] is undefined
     - system_lvm_item['value']['vg'] is defined
 
-- name: "{{ system_lvm_item['key'] }} : creating/resizing logical volume }}"
+- name: "{{ system_lvm_item['key'] }} : creating/resizing logical volume"
   community.general.lvol:
     active: "{{ item['active'] | default(omit) }}"
     force: "{{ item['force'] | default(omit) }}"
