@@ -1,6 +1,6 @@
 ---
 - name: running system_lvm tasks
-  include_tasks: system_lvm.yml
+  ansible.builtin.include_tasks: system_lvm.yml
   loop: "{{ system_lvm | dict2items }}"
   loop_control:
     label: "{{ system_lvm_item['key'] }}"
